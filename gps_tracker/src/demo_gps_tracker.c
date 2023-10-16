@@ -29,8 +29,9 @@
  * 
  * 
  */
-#define SERVER_IP   "https://approxy.ddns.net"
-#define SERVER_PORT  443
+//#define SERVER_IP   "https://approxy.ddns.net"
+#define SERVER_IP   "18.195.62.216" //"https://webhook.site/d68231e2-8232-419c-a94f-b9214cfd9833"
+#define SERVER_PORT  80
 
 #define GPS_NMEA_LOG_FILE_PATH "/t/gps_nmea.log"
 
@@ -143,18 +144,18 @@ void EventDispatch(API_Event_t* pEvent)
 //http post with no header
 int Http_Post(const char* domain, int port,const char* path,uint8_t* body, uint16_t bodyLen, char* retBuffer, int bufferLen)
 {
-    uint8_t ip[16];
+    uint8_t ip[16] = "18.195.62.216";
     bool flag = false;
     uint16_t recvLen = 0;
 
     //connect server
-    memset(ip,0,sizeof(ip));
-    if(DNS_GetHostByName2(domain,ip) != 0)
-    {
-        Trace(2,"get ip error");
-        return -1;
-    }
-    // Trace(2,"get ip success:%s -> %s",domain,ip);
+    // memset(ip,0,sizeof(ip));
+    // if(DNS_GetHostByName2(domain,ip) != 0)
+    // {
+    //     Trace(2,"get ip error");
+    //     return -1;
+    // }
+     Trace(2,"get ip success:%s -> %s",domain,ip);
     char* servInetAddr = ip;
     char* temp = OS_Malloc(2048);
     if(!temp)
@@ -171,7 +172,7 @@ int Http_Post(const char* domain, int port,const char* path,uint8_t* body, uint1
         OS_Free(temp);
         return -1;
     }
-    // Trace(2,"fd:%d",fd);
+     Trace(2,"fd:%d",fd);
 
     struct sockaddr_in sockaddr;
     memset(&sockaddr,0,sizeof(sockaddr));
@@ -263,9 +264,6 @@ void gps_testTask(void *pData)
 {
     GPS_Info_t* gpsInfo = Gps_GetInfo();
 
-
-    
-
     UART_Write(UART1,"Init now\r\n",strlen("Init now\r\n"));
     //wait for gprs register complete
     //The process of GPRS registration network may cause the power supply voltage of GPS to drop,
@@ -325,7 +323,7 @@ void gps_testTask(void *pData)
     if(!GPS_SetOutputInterval(1000))
         Trace(1,"set nmea output interval fail");
     
-    Trace(1,"init ok");
+    Trace(1,"init ok : Build 6");
     UART_Write(UART1,"Init ok\r\n",strlen("Init ok\r\n"));
 
     while(1)
@@ -374,7 +372,7 @@ void gps_testTask(void *pData)
             UART_Write(UART1,buffer,strlen(buffer));
             //snprintf(requestPath,sizeof(buffer2),"/?id=%s&timestamp=%d&lat=%f&lon=%f&speed=%f&bearing=%.1f&altitude=%f&accuracy=%.1f&batt=%.1f",
               //                                      buffer,time(NULL),latitude,longitude,isFixed*1.0,0.0,gpsInfo->gga.altitude,0.0,percent*1.0);
-            snprintf(requestPath,sizeof(buffer2),"/ws?type=set_db&data={\"loc_time\":%d&\"latitude\":%f&\"longitude\":%f&\"acu\":30.0&\"hk\":uermhzjex7&\"location\":{\"type\":\"Point\",\"coordinates\":[%f,%f]}}"
+            snprintf(requestPath,sizeof(buffer2),"/ws?type=set_db&data={\"loc_time\":%d,\"latitude\":%f,\"longitude\":%f,\"acu\":30.0,\"hk\":\"uermhzjex7\",\"location\":{\"type\":\"Point\",\"coordinates\":[%f,%f]}}"
                                                     ,time(NULL),latitude,longitude,longitude,latitude);
             uint8_t status;
             Network_GetActiveStatus(&status);
@@ -455,6 +453,7 @@ void gps_MainTask(void *pData)
 
     OS_StartCallbackTimer(gpsTaskHandle,1000,LED_Blink,NULL);
     //Wait event
+
     while(1)
     {
         if(OS_WaitEvent(gpsTaskHandle, (void**)&event, OS_TIME_OUT_WAIT_FOREVER))
