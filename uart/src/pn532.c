@@ -212,7 +212,7 @@ int PN532_ReadFrame(PN532* pn532, uint8_t* response, uint16_t length) {
         }
     }
     if (buff[offset] != 0xFF) {
-        pn532->log("Response frame preamble does not contain 0x00FF!");
+        pn532->log("Response frame preamble does not contain 0x00FF!!!");
         return PN532_STATUS_ERROR;
     }
     offset += 1;
