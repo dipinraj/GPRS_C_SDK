@@ -92,7 +92,7 @@ static void uart_MainTask()
     OS_Sleep(50);
     PN532_Reset();
     
-    Trace(1,"Build 20: A");
+    Trace(1,"Build 22: A");
 
 
     if (PN532_GetFirmwareVersion(&pn532, buff) == PN532_STATUS_OK) {
@@ -122,7 +122,7 @@ static void uart_MainTask()
 //             snprintf(temp,20,"hello:%d\n",++times);
 // //            UART_Write(UART1,temp,strlen(temp)+1);
 //             UART_Write(UART1,data,sizeof(data));
-            Trace(1,"Build 20: B");
+            Trace(1,"Build 22: B");
 
             OS_Sleep(10);
 

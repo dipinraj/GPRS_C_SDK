@@ -281,8 +281,7 @@ int PN532_CallFunction(
 ) {
     // Build frame data with command and parameters.
     uint8_t buff[PN532_FRAME_MAX_LENGTH];
-    uint8_t bufferPtr[PN532_FRAME_MAX_LENGTH];//dipin
-
+   
     // Specify the length of the header and data
     // size_t headerLength = 4;
     // size_t dataLength = sizeof(bufferPtr) - headerLength;
@@ -313,36 +312,16 @@ int PN532_CallFunction(
         }
     }
     // removing first N chars of buffer(Remove ACK! frame)
-   // remove_chars(buff,sizeof(PN532_ACK));
-    //memcpy(bufferPtr,buff,sizeof(buff));
-
-    // removeHeader(bufferPtr, headerLength, dataLength);
-
-    // for (size_t i = 0; i < dataLength; i++) {
-    //     printf("0x%02X ", bufferPtr[i]);
-    // }
-
-    //memmove(bufferPtr + (sizeof(uint8_t) * sizeof(PN532_ACK)), bufferPtr, sizeof(uint8_t) * (sizeof(buff) - sizeof(PN532_ACK)));
-
-    memmove(uartBuffer, uartBuffer + 6, sizeof(buff) - 6);
-    //bufferPtr =(uint8_t*) (buff + (uint8_t)sizeof(PN532_ACK));
-    //buff = (uint8_t)(buff + sizeof(PN532_ACK));
-    //uartBufferIndex = uartBufferIndex - sizeof(PN532_ACK);
+    memmove(uartBuffer, uartBuffer + 6, sizeof(buff) - 6);//sizeof(PN532_ACK) == 6
 // Testing - TO remove
-    for (int i = 0; i < uartBufferIndex - 6; i++) {
-        Trace(1,"%02x ",(uint8_t)uartBuffer[i]);
-        // if(i>5){
-        //     bufferPtr[i-6] = uartBuffer[i];
-        //     Trace(1,"%02x ",(uint8_t)bufferPtr[i-6]);
-        // }
-    }
+    // for (int i = 0; i < uartBufferIndex - 6; i++) {
+    //     Trace(1,"%02x ",(uint8_t)uartBuffer[i]);
+    // }
 
     if (!pn532->wait_ready(timeout)) {
         pn532->log("Timeout 2");
         return PN532_STATUS_ERROR;
     }
-
-    //pn532->reset();// Reset the uart buffer after ACK !-by Dipin, 
 
     // Read response bytes.
     int frame_len = PN532_ReadFrame(pn532, buff, response_length + 2);
