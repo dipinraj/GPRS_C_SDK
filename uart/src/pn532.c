@@ -312,6 +312,8 @@ int PN532_CallFunction(
         }
     }
     // removing first N chars of buffer(Remove ACK! frame)
+    //if(uartBuffer != null)
+    //if(command == PN532_COMMAND_GETFIRMWAREVERSION)
     memmove(uartBuffer, uartBuffer + 6, sizeof(buff) - 6);//sizeof(PN532_ACK) == 6
 // Testing - TO remove
     // for (int i = 0; i < uartBufferIndex - 6; i++) {
@@ -388,6 +390,7 @@ int PN532_ReadPassiveTarget(
     int length = PN532_CallFunction(pn532, PN532_COMMAND_INLISTPASSIVETARGET,
                         buff, sizeof(buff), params, sizeof(params), timeout);
     if (length < 0) {
+        pn532->log("No card found!");
         return PN532_STATUS_ERROR; // No card found
     }
     // Check only 1 card with up to a 7 byte UID is present.

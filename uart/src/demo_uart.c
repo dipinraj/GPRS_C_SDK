@@ -3,8 +3,9 @@
 #include <api_os.h>
 #include <api_hal_uart.h>
 #include <api_debug.h>
- #include <string.h>
- #include <stdio.h>
+#include <string.h>
+#include <stdio.h>
+
 #include "pn532.h"
 
 
@@ -66,8 +67,8 @@ static void EventDispatch(API_Event_t* pEvent)
 static void uart_MainTask()
 {
     uint8_t buff[255];
-    //uint8_t uid[MIFARE_UID_MAX_LENGTH];
-    //int32_t uid_len = 0;
+    uint8_t uid[MIFARE_UID_MAX_LENGTH];
+    int32_t uid_len = 0;
     PN532 pn532;
 
     UART_Config_t config = {
@@ -92,7 +93,7 @@ static void uart_MainTask()
     OS_Sleep(50);
     PN532_Reset();
     
-    Trace(1,"Build 22: A");
+    Trace(1,"Build 31: A");
 
 
     if (PN532_GetFirmwareVersion(&pn532, buff) == PN532_STATUS_OK) {
@@ -100,6 +101,9 @@ static void uart_MainTask()
     }else{
         Trace(1,"GetFirmwareVersion Failed!");
     }
+
+    PN532_SamConfiguration(&pn532);
+    printf("Waiting for RFID/NFC card...\r\n");
 
     while(1)
     {
@@ -109,28 +113,41 @@ static void uart_MainTask()
             // static int times = 0;
             // uint8_t buffer[50];
 
-            PN532_UART_Wakeup();
-            PN532_Reset();
+            //PN532_UART_Wakeup();
+            //PN532_Reset();
 
-            if (PN532_GetFirmwareVersion(&pn532, buff) == PN532_STATUS_OK) {
-                Trace(1,"Found PN532 with firmware version: %d.%d\r\n", buff[1], buff[2]);
-            }else{
-                Trace(1,"GetFirmwareVersion Failed!");
+        // Check if a card is available to read
+       
+            uid_len = PN532_ReadPassiveTarget(&pn532, uid, PN532_MIFARE_ISO14443A, 1000);
+            if (uid_len == PN532_STATUS_ERROR) {
+                Trace(1,".");
+                //fflush(stdout);
+            } else {
+                Trace(1,"Found card with UID: ");
+                for (uint8_t i = 0; i < uid_len; i++) {
+                    Trace(1,"%02x ", uid[i]);
+                }
+                //Trace(1,"\r\n");
             }
+        
+            // if (PN532_GetFirmwareVersion(&pn532, buff) == PN532_STATUS_OK) {
+            //     Trace(1,"Found PN532 with firmware version: %d.%d\r\n", buff[1], buff[2]);
+            // }else{
+            //     Trace(1,"GetFirmwareVersion Failed!");
+            // }
+
 //             uint8_t data[] = {0x55, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x03, 0xFD, 0xD4, 0x14, 0x01, 0x17, 0x00};
     
 //             snprintf(temp,20,"hello:%d\n",++times);
 // //            UART_Write(UART1,temp,strlen(temp)+1);
 //             UART_Write(UART1,data,sizeof(data));
-            Trace(1,"Build 22: B");
-
-            OS_Sleep(10);
+            Trace(1,"Build 31: B");
 
             //memset(buffer,0,sizeof(buffer));
             // uint32_t readLen = UART_Read(UART1,buffer,10,3000);
             // Trace(1,"UART_Read uart2,readLen:%d,data:%s",readLen,buffer);
-            OS_Sleep(10000);
-            PN532_Reset();
+            OS_Sleep(2000);
+            //PN532_Reset();
         }
         else{
 #if USE_EVENT
