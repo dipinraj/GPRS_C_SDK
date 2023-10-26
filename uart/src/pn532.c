@@ -35,6 +35,7 @@
 #include "time.h"
 
 
+
 const uint8_t PN532_ACK[] = {0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
 const uint8_t PN532_FRAME_START[] = {0x00, 0x00, 0xFF};
 
@@ -314,7 +315,8 @@ int PN532_CallFunction(
     // removing first N chars of buffer(Remove ACK! frame)
     //if(uartBuffer != null)
     //if(command == PN532_COMMAND_GETFIRMWAREVERSION)
-    memmove(uartBuffer, uartBuffer + 6, sizeof(buff) - 6);//sizeof(PN532_ACK) == 6
+    //memmove(uartBuffer, uartBuffer + 6, sizeof(buff) - 6);//sizeof(PN532_ACK) == 6
+    memcpy(uartBuffer, uartBuffer + 6,sizeof(buff) - 6);
 // Testing - TO remove
     // for (int i = 0; i < uartBufferIndex - 6; i++) {
     //     Trace(1,"%02x ",(uint8_t)uartBuffer[i]);
