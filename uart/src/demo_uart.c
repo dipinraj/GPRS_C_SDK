@@ -5,7 +5,7 @@
 #include <api_debug.h>
 #include <string.h>
 #include <stdio.h>
-
+#include "api_hal_gpio.h"
 #include "pn532.h"
 
 
@@ -85,6 +85,15 @@ static void uart_MainTask()
     config.useEvent = true;
     config.rxCallback = NULL;
 #endif
+    // GPIO 
+    static GPIO_LEVEL ledBlueLevel = GPIO_LEVEL_HIGH;
+    GPIO_config_t gpioLedBlue = {
+        .mode = GPIO_MODE_OUTPUT,
+        .defaultLevel = GPIO_LEVEL_LOW
+    };
+    gpioLedBlue.pin = GPIO_PIN27;
+    GPIO_Init(gpioLedBlue);
+    // UART
     UART_Init(UART1,config);
     config.rxCallback = NULL;
     UART_Init(UART2,config);
@@ -93,7 +102,7 @@ static void uart_MainTask()
     OS_Sleep(50);
     PN532_Reset();
     
-    Trace(1,"Build 32: A");
+    Trace(1,"Build 33: A");
 
 
     if (PN532_GetFirmwareVersion(&pn532, buff) == PN532_STATUS_OK) {
@@ -141,12 +150,18 @@ static void uart_MainTask()
 //             snprintf(temp,20,"hello:%d\n",++times);
 // //            UART_Write(UART1,temp,strlen(temp)+1);
 //             UART_Write(UART1,data,sizeof(data));
-            Trace(1,"Build 32: B");
+            Trace(1,"Build 33: B");
 
             //memset(buffer,0,sizeof(buffer));
             // uint32_t readLen = UART_Read(UART1,buffer,10,3000);
             // Trace(1,"UART_Read uart2,readLen:%d,data:%s",readLen,buffer);
             OS_Sleep(2000);
+            if(ledBlueLevel == GPIO_LEVEL_HIGH)
+                ledBlueLevel = GPIO_LEVEL_LOW;
+            else
+                ledBlueLevel = GPIO_LEVEL_HIGH;
+
+            GPIO_Set(GPIO_PIN27, ledBlueLevel);
             //PN532_Reset();
         }
         else{
